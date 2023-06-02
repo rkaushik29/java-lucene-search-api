@@ -4,6 +4,7 @@ import io.javalin.Javalin;
 import io.javalin.http.Context;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
@@ -11,25 +12,29 @@ import org.apache.lucene.search.similarities.BM25Similarity;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
+
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
 public class SearchAPI {
-    private static final String INDEX_PATH = "../../../resources/cranfield";
+    private static final String INDEX_PATH = "/Users/rohitkaushik/dev/tugraz/java-lucene-search-api/search-api/src/main/resources/cranfield";
 
     public static void main(String[] args) throws Exception {
-        Javalin app = Javalin.create().start(5000);
+        Javalin app = Javalin.create().start(8000);
+        System.out.print("Running app\n");
 
         app.get("/search", SearchAPI::handleSearchRequest);
     }
 
     private static Query createQuery(String queryString) throws ParseException {
-        String fieldName = "content"; // Replace with your field name
+        String[] fieldsToQuery = {}; // Replace with your field name
 
-        QueryParser queryParser = new QueryParser(fieldName, new StandardAnalyzer());
+        MultiFieldQueryParser queryParser = new MultiFieldQueryParser(fieldsToQuery, new StandardAnalyzer());
         Query query = queryParser.parse(queryString);
 
         return query;
@@ -40,7 +45,14 @@ public class SearchAPI {
 
         // Create an IndexSearcher
         FSDirectory indexDir = FSDirectory.open(Paths.get(INDEX_PATH));
-        DirectoryReader reader = DirectoryReader.open(indexDir);
+
+        // Index Test - evaluates to True
+        boolean indexExists = DirectoryReader.indexExists(indexDir);
+        System.out.println("Index Exists: " + indexExists + "\n");
+
+        IndexReader reader = DirectoryReader.open(indexDir);
+        System.out.println(reader.numDocs()); // nothing printed
+
         IndexSearcher searcher = new IndexSearcher(reader);
         searcher.setSimilarity(new BM25Similarity());
 
