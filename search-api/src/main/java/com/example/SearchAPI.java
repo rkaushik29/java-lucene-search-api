@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SearchAPI {
-    private static final String INDEX_PATH = "/Users/rohitkaushik/dev/tugraz/java-lucene-search-api/search-api/src/main/resources/cranfield";
+    private static final String INDEX_PATH = "./../../../resources/cranfield";
 
     public static void main(String[] args) throws Exception {
         Javalin app = Javalin.create().start(8000);
@@ -32,12 +32,19 @@ public class SearchAPI {
     }
 
     private static Query createQuery(String queryString) throws ParseException {
-        String[] fieldsToQuery = {}; // Replace with your field name
+        String[] fieldsToQuery = {"id"}; // Replace with your field name
 
         MultiFieldQueryParser queryParser = new MultiFieldQueryParser(fieldsToQuery, new StandardAnalyzer());
         Query query = queryParser.parse(queryString);
 
         return query;
+    }
+
+    private static IndexSearcher createSearcher() throws IOException 
+    {
+        FSDirectory dir = FSDirectory.open(Paths.get(INDEX_PATH));
+        IndexReader reader = DirectoryReader.open(dir);
+        return new IndexSearcher(reader);
     }
 
     private static void handleSearchRequest(Context context) throws Exception {
@@ -51,9 +58,8 @@ public class SearchAPI {
         System.out.println("Index Exists: " + indexExists + "\n");
 
         IndexReader reader = DirectoryReader.open(indexDir);
-        System.out.println(reader.numDocs()); // nothing printed
+        IndexSearcher searcher = createSearcher();
 
-        IndexSearcher searcher = new IndexSearcher(reader);
         searcher.setSimilarity(new BM25Similarity());
 
         // Perform the search
