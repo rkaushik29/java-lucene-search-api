@@ -14,7 +14,6 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
-import org.apache.lucene.queryparser.classic.QueryParser;
 
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -22,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SearchAPI {
-    private static final String INDEX_PATH = "./../../../resources/cranfield";
+    private static final String INDEX_PATH = "/Users/rohitkaushik/dev/tugraz/java-lucene-search-api/search-api/src/main/resources/index";
 
     public static void main(String[] args) throws Exception {
         Javalin app = Javalin.create().start(8000);
