@@ -31,7 +31,7 @@ public class SearchAPI {
     }
 
     private static Query createQuery(String queryString) throws ParseException {
-        String[] fieldsToQuery = {"id"}; // Replace with your field name
+        String[] fieldsToQuery = {"content"}; // Replace with your field name
 
         MultiFieldQueryParser queryParser = new MultiFieldQueryParser(fieldsToQuery, new StandardAnalyzer());
         Query query = queryParser.parse(queryString);
