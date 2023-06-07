@@ -72,6 +72,7 @@ public class SearchAPI {
             Document document = searcher.doc(docId);
             documents.add(document);
         }
+        System.out.print(documents);
 
         // Prepare the response
         SearchResult result = new SearchResult(documents);
