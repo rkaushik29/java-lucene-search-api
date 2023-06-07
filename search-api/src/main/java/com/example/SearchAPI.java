@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SearchAPI {
-    private static final String INDEX_PATH = "/Users/rohitkaushik/dev/tugraz/java-lucene-search-api/search-api/src/main/resources/index";
+    private static final String INDEX_PATH = "/Users/rohitkaushik/dev/tugraz/java-lucene-search-api/search-api/src/main/resources/graz";
 
     public static void main(String[] args) throws Exception {
         Javalin app = Javalin.create().start(8000);
