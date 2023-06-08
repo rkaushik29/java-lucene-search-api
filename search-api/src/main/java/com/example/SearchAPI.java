@@ -13,15 +13,17 @@ import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
+import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
-
+import java.util.HashSet;
+import java.util.Set;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
 public class SearchAPI {
-    private static final String INDEX_PATH = "/Users/rohitkaushik/dev/tugraz/java-lucene-search-api/search-api/src/main/resources/graz";
+    private static final String INDEX_PATH = "/Users/rohitkaushik/dev/tugraz/java-lucene-search-api/search-api/src/main/resources/cranfield";
 
     public static void main(String[] args) throws Exception {
         Javalin app = Javalin.create().start(8000);
@@ -31,9 +33,7 @@ public class SearchAPI {
     }
 
     private static Query createQuery(String queryString) throws ParseException {
-        String[] fieldsToQuery = {"content"}; // Replace with your field name
-
-        MultiFieldQueryParser queryParser = new MultiFieldQueryParser(fieldsToQuery, new StandardAnalyzer());
+        QueryParser queryParser = new QueryParser("content", new StandardAnalyzer());
         Query query = queryParser.parse(queryString);
 
         return query;
@@ -63,16 +63,20 @@ public class SearchAPI {
 
         // Perform the search
         TopDocs topDocs = searcher.search(query, 10);
+
         ScoreDoc[] hits = topDocs.scoreDocs;
+        System.out.println("Total Results: " + topDocs.totalHits);
 
         // Collect the search results
         List<Document> documents = new ArrayList<>();
         for (ScoreDoc hit : hits) {
             int docId = hit.doc;
-            Document document = searcher.doc(docId);
+            Set<String> fieldsToLoad = new HashSet<>();
+            fieldsToLoad.add("content");
+            Document document = reader.document(docId);
             documents.add(document);
         }
-        System.out.print(documents);
+
 
         // Prepare the response
         SearchResult result = new SearchResult(documents);
