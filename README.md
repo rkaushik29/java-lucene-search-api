@@ -10,11 +10,11 @@
 - Build the project using `mvn clean install`
 - Run the project using `java -jar target/search-api-1.0-SNAPSHOT.jar`
 
-The server will be running on `port:5000` of your machine. 
+The server will be running on `port:8000` of your machine. 
 
 ### Queries
 
 - Open a web browser or use tools like cURL or Postman.
-- Send a GET request to http://localhost:5000/search?q=<your_query>, where <your_query> is the search query you want to perform.
+- Send a GET request to http://localhost:8000/search?q=<your_query>, where <your_query> is the search query you want to perform.
 - The API will return a response containing the query and a list of search results.
 
