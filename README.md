@@ -8,7 +8,7 @@
 ### Setup
 - Enter the project directory `cd search-api`
 - Build the project using `mvn clean install`
-- Run the project using `java -jar target/search-api-1.0-SNAPSHOT.jar`
+- Run the project using `mvn compile exec:java -Dexec.mainClass="com.example.SearchAPI"`
 
 The server will be running on `port:8000` of your machine. 
 
