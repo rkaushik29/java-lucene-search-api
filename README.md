@@ -4,6 +4,7 @@
 - Install Java (JDK 11+)
 - Install Maven
 - Install Lucene (from the Lucene official website)
+- Add the following jar files to the Classpath: `lucene-core-{version}.jar` and `lucene-demos-{version}.jar` by using the following command `export CLASSPATH=/full/path/to/{lucene1}.jar:/full/path/to/{lucene2}.jar:$CLASSPATH`
 
 ### Setup
 - Include the lucene index in `search-api/src/main/resources`
