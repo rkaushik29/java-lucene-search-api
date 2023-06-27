@@ -1,11 +1,12 @@
 # Java Lucene Search API
 
 ### Pre-requisites
-- Java (JDK 11+)
-- Maven
-- Lucene
+- Install Java (JDK 11+)
+- Install Maven
+- Install Lucene (from the Lucene official website)
 
 ### Setup
+- Include the lucene index in `search-api/src/main/resources`
 - Enter the project directory `cd search-api`
 - Build the project using `mvn clean install`
 - Run the project using `mvn compile exec:java -Dexec.mainClass="com.example.SearchAPI"`
