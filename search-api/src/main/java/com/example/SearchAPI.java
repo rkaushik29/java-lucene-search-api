@@ -30,6 +30,10 @@ public class SearchAPI {
         System.out.print("Running app\n");
 
         app.get("/search", SearchAPI::handleSearchRequest);
+        app.exception(Exception.class, (e, ctx) -> {
+            // handle general exceptions here
+            // will not trigger if more specific exception-mapper found
+        });
     }
 
     private static Query createQuery(String queryString) throws ParseException {
