@@ -37,7 +37,7 @@ public class SearchAPI {
     }
 
     private static Query createQuery(String queryString) throws ParseException {
-        QueryParser queryParser = new QueryParser("content", new StandardAnalyzer());
+        QueryParser queryParser = new QueryParser("contents", new StandardAnalyzer());
         Query query = queryParser.parse(queryString);
 
         return query;
