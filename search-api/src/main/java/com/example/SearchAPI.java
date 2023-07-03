@@ -56,9 +56,9 @@ public class SearchAPI {
         // Create an IndexSearcher
         FSDirectory indexDir = FSDirectory.open(Paths.get(INDEX_PATH));
 
-        // Index Test - evaluates to True
+        // Index Test
         boolean indexExists = DirectoryReader.indexExists(indexDir);
-        System.out.println("Index Exists: " + indexExists + "\n");
+        System.out.println("Index Exists: " + indexExists);
 
         IndexReader reader = DirectoryReader.open(indexDir);
         IndexSearcher searcher = createSearcher();
@@ -67,9 +67,10 @@ public class SearchAPI {
 
         // Perform the search
         TopDocs topDocs = searcher.search(query, 10);
-
         ScoreDoc[] hits = topDocs.scoreDocs;
-        System.out.println("Total Results: " + topDocs.totalHits);
+
+        // Number of query hits
+        System.out.println("Total Results: " + topDocs.totalHits + "\n");
 
         // Collect the search results
         List<Document> documents = new ArrayList<>();
@@ -80,7 +81,6 @@ public class SearchAPI {
             Document document = reader.document(docId);
             documents.add(document);
         }
-
 
         // Prepare the response
         SearchResult result = new SearchResult(documents);
