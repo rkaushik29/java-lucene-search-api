@@ -12,7 +12,6 @@ import org.apache.lucene.search.similarities.BM25Similarity;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
 import java.util.HashSet;
@@ -26,13 +25,19 @@ public class SearchAPI {
     private static final String INDEX_PATH = "/Users/rohitkaushik/dev/tugraz/java-lucene-search-api/search-api/src/main/resources/graz";
 
     public static void main(String[] args) throws Exception {
-        Javalin app = Javalin.create().start(8000);
+        Javalin app = Javalin.create(config -> {
+            config.plugins.enableCors(cors -> {
+                cors.add(it -> {
+                    it.allowHost("http://localhost:3000", "javalin.io");
+                });
+            });
+        });
+
+        app.start(8000);
         System.out.print("Running app\n");
 
         app.get("/search", SearchAPI::handleSearchRequest);
         app.exception(Exception.class, (e, ctx) -> {
-            // handle general exceptions here
-            // will not trigger if more specific exception-mapper found
         });
     }
 
@@ -62,15 +67,12 @@ public class SearchAPI {
 
         IndexReader reader = DirectoryReader.open(indexDir);
         IndexSearcher searcher = createSearcher();
-
         searcher.setSimilarity(new BM25Similarity());
 
         // Perform the search
         TopDocs topDocs = searcher.search(query, 10);
         ScoreDoc[] hits = topDocs.scoreDocs;
-
-        // Number of query hits
-        System.out.println("Total Results: " + topDocs.totalHits + "\n");
+        System.out.println("Total Results: " + topDocs.totalHits  + "\n");
 
         // Collect the search results
         List<Document> documents = new ArrayList<>();

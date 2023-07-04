@@ -8,6 +8,7 @@
 
 ### Setup
 - Include the lucene index in `search-api/src/main/resources`
+- Check if the index directory in the code corresponds to the location where the index is stored in your computer.
 - Enter the project directory `cd search-api`
 - Build the project using `mvn clean install`
 - Run the project using `mvn compile exec:java -Dexec.mainClass="com.example.SearchAPI"`
@@ -18,5 +19,5 @@ The server will be running on `port:8000` of your machine.
 
 - Open a web browser or use tools like cURL or Postman.
 - Send a GET request to http://localhost:8000/search?q=<your_query>, where <your_query> is the search query you want to perform.
-- The API will return a response containing a list of search results.
+- The API will return a response containing the query and a list of search results.
 
