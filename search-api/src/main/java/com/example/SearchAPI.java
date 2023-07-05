@@ -11,6 +11,10 @@ import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.similarities.BM25Similarity;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.search.Query;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
@@ -88,6 +92,30 @@ public class SearchAPI {
         SearchResult result = new SearchResult(documents);
         context.json(result);
 
+        // Convert into JSON object -> for parquet integration
+        String res = context.result();
+        JsonObject jsonObject = new Gson().fromJson(res, JsonObject.class);
+
+        // Iterate through JSON obj, get links and extract path, use path to get text from parquet file and put it 
+        // into the result
+        JsonArray resultsArray = jsonObject.getAsJsonArray("results");
+        for (JsonElement element : resultsArray) {
+            JsonObject resultObject = element.getAsJsonObject();
+            JsonArray fieldsArray = resultObject.getAsJsonArray("fields");
+            JsonObject fieldObject = fieldsArray.get(0).getAsJsonObject();
+
+            // Get the link for path extraction, which is needed to get text from parquet file
+            String charSequenceValue = fieldObject.get("charSequenceValue").getAsString();
+
+            String path = extractPath(charSequenceValue);
+
+            // Add the "text" field next to the "charSequenceValue" field
+            fieldObject.addProperty("text", "Some text");
+            
+
+            System.out.println("charSequenceValue: " + charSequenceValue);
+        }
+
         // Close the IndexReader
         reader.close();
     }
@@ -102,5 +130,32 @@ public class SearchAPI {
         public List<Document> getResults() {
             return results;
         }
+    }
+
+
+    public static String extractPath(String input) {
+            int count = 0;
+            int index = -1;
+            
+            for (int i = 0; i < input.length(); i++) {
+                if (input.charAt(i) == '/') {
+                    count++;
+                    if (count == 3) {
+                        index = i;
+                        break;
+                    }
+                }
+            }
+            
+            if (index != -1 && index + 1 < input.length()) {
+                return input.substring(index);
+            } else {
+                return ""; 
+            }
+    }
+
+    public static JsonObject convertToJSON(String jsonString) {
+        Gson gson = new Gson();
+        return gson.fromJson(jsonString, JsonObject.class);
     }
 }
