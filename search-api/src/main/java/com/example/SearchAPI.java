@@ -15,16 +15,22 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+
+import org.apache.hadoop.fs.Path;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.parquet.column.ColumnReader;
 import org.apache.parquet.example.data.Group;
 import org.apache.parquet.example.data.simple.SimpleGroup;
 import org.apache.parquet.hadoop.ParquetReader;
 import org.apache.parquet.hadoop.ParquetReader.Builder;
 import org.apache.parquet.hadoop.example.GroupReadSupport;
+import org.apache.parquet.io.ColumnIOFactory;
 import org.apache.parquet.schema.MessageType;
 import org.apache.parquet.schema.Types;
+import org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName;
+
 import java.util.HashSet;
 import java.util.Set;
 import java.io.IOException;
@@ -104,7 +110,7 @@ public class SearchAPI {
         String res = context.result();
         JsonObject jsonObject = new Gson().fromJson(res, JsonObject.class);
 
-        // Iterate through JSON obj, get links and extract path, use path to get text from parquet file and put it 
+        // Iterate through JSON obj, get links and extract path, use path to get text from parquet file and put it
         // into the result
         JsonArray resultsArray = jsonObject.getAsJsonArray("results");
         for (JsonElement element : resultsArray) {
@@ -116,6 +122,22 @@ public class SearchAPI {
             String charSequenceValue = fieldObject.get("charSequenceValue").getAsString();
 
             String path = extractPath(charSequenceValue);
+
+            // try (ParquetReader<Group> prq_reader = createParquetReader(PRQ_PATH)) {
+            //     Group record;
+            //     while ((record = prq_reader.read()) != null) {
+            //         String urlPath = record.getString("url_path", 0);
+            //         if (urlPath.equals(path)) {
+            //             String text = record.getString("text", 0);
+            //             System.out.println("Matching entry found!");
+            //             System.out.println("url_path: " + urlPath);
+            //             System.out.println("text: " + text);
+            //             break;
+            //         }
+            //     }
+            // } catch (IOException e) {
+            //     e.printStackTrace();
+            // }
 
             // Add the "text" field next to the "charSequenceValue" field
             fieldObject.addProperty("text", "Some text");
@@ -139,6 +161,16 @@ public class SearchAPI {
             return results;
         }
     }
+
+    // private static ParquetReader<Group> createParquetReader(String filePath) throws IOException {
+    //     MessageType schema = Types.buildMessage()
+    //             .optional(Types.optional(PrimitiveTypeName.BINARY)).named("url_path")
+    //             .optional(Types.optional(PrimitiveTypeName.BINARY)).named("text")
+    //             .named("parquet_data");
+
+    //     Builder<Group> reader = ParquetReader.builder(new GroupReadSupport(), new org.apache.hadoop.fs.Path(filePath));
+    //     return reader.build();
+    // }
 
 
     public static String extractPath(String input) {
