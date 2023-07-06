@@ -18,6 +18,13 @@ import com.google.gson.JsonObject;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.parquet.example.data.Group;
+import org.apache.parquet.example.data.simple.SimpleGroup;
+import org.apache.parquet.hadoop.ParquetReader;
+import org.apache.parquet.hadoop.ParquetReader.Builder;
+import org.apache.parquet.hadoop.example.GroupReadSupport;
+import org.apache.parquet.schema.MessageType;
+import org.apache.parquet.schema.Types;
 import java.util.HashSet;
 import java.util.Set;
 import java.io.IOException;
@@ -27,6 +34,7 @@ import java.util.List;
 
 public class SearchAPI {
     private static final String INDEX_PATH = "/Users/rohitkaushik/dev/tugraz/java-lucene-search-api/search-api/src/main/resources/graz";
+    private static final String PRQ_PATH = "/Users/rohitkaushik/dev/tugraz/java-lucene-search-api/search-api/src/main/resources/websites-graz.parquet.gz";
 
     public static void main(String[] args) throws Exception {
         Javalin app = Javalin.create(config -> {
