@@ -18,7 +18,6 @@ import com.google.gson.JsonObject;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import org.apache.hadoop.fs.Path;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
@@ -136,12 +135,12 @@ public class SearchAPI {
 
             // Link Crawling
             try {
-                Process process = Runtime.getRuntime().exec("../../../../../../scripts/crawl.sh " + charSequenceValue);
+                Process process = Runtime.getRuntime().exec("/Users/rohitkaushik/dev/tugraz/java-lucene-search-api/scripts/crawl.sh " + charSequenceValue);
                 BufferedReader io_reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 
                 String line;
                 while ((line = io_reader.readLine()) != null) {
-                    System.out.println(line);
+                    System.out.println(line + " 1");
                 }
                 process.waitFor();
                 reader.close();
