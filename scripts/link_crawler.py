@@ -1,8 +1,10 @@
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
+import sys
 
 def crawl_link(url):
     html = urlopen(url).read()
+    print("here")
     soup = BeautifulSoup(html, features="html.parser")
 
     # kill all script and style elements
@@ -20,3 +22,7 @@ def crawl_link(url):
     text = '\n'.join(chunk for chunk in chunks if chunk) 
     
     return text
+
+if __name__=="__main__":
+    text = crawl_link(sys.argv[1])
+    print(text)
