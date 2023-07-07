@@ -113,6 +113,7 @@ public class SearchAPI {
 
             String path = extractPath(charSequenceValue);
 
+            // --- Parquet file query attempt ---------------------------------------
             // try (ParquetReader<Group> prq_reader = createParquetReader(PRQ_PATH)) {
             //     Group record;
             //     while ((record = prq_reader.read()) != null) {
@@ -131,9 +132,22 @@ public class SearchAPI {
 
             // Add the "text" field next to the "charSequenceValue" field
             // fieldObject.addProperty("text", "Some text");
-            
+            // ------------------------------------------------------------------------
 
-            System.out.println("charSequenceValue: " + charSequenceValue);
+            // Link Crawling
+            try {
+                Process process = Runtime.getRuntime().exec("../../../../../../scripts/crawl.sh " + charSequenceValue);
+                BufferedReader io_reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+
+                String line;
+                while ((line = io_reader.readLine()) != null) {
+                    System.out.println(line);
+                }
+                process.waitFor();
+                reader.close();
+            } catch (IOException | InterruptedException e) {
+                e.printStackTrace();
+            }                         
         }
 
         // Close the IndexReader
