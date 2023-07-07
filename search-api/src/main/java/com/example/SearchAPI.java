@@ -15,25 +15,15 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import org.apache.hadoop.fs.Path;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
-import org.apache.parquet.column.ColumnReader;
-import org.apache.parquet.example.data.Group;
-import org.apache.parquet.example.data.simple.SimpleGroup;
-import org.apache.parquet.hadoop.ParquetReader;
-import org.apache.parquet.hadoop.ParquetReader.Builder;
-import org.apache.parquet.hadoop.example.GroupReadSupport;
-import org.apache.parquet.io.ColumnIOFactory;
-import org.apache.parquet.schema.MessageType;
-import org.apache.parquet.schema.Types;
-import org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName;
-
 import java.util.HashSet;
 import java.util.Set;
-import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -140,7 +130,7 @@ public class SearchAPI {
             // }
 
             // Add the "text" field next to the "charSequenceValue" field
-            fieldObject.addProperty("text", "Some text");
+            // fieldObject.addProperty("text", "Some text");
             
 
             System.out.println("charSequenceValue: " + charSequenceValue);
