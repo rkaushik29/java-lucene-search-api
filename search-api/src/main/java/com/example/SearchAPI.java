@@ -138,7 +138,7 @@ public class SearchAPI {
                 Process process = Runtime.getRuntime().exec("/Users/rohitkaushik/dev/tugraz/java-lucene-search-api/scripts/crawl.sh " + charSequenceValue);
                 BufferedReader io_reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 
-                String line;
+                String line = "";
                 while ((line = io_reader.readLine()) != null) {
                     System.out.println(line + " 1");
                 }

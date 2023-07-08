@@ -4,11 +4,11 @@ import sys
 
 def crawl_link(url):
     html = urlopen(url).read()
-    print("here")
     soup = BeautifulSoup(html, features="html.parser")
+    line_maxlen = 0
 
     # kill all script and style elements
-    for script in soup(["script", "style"]):
+    for script in soup(["script", "style", "a"]):
         script.extract()    # rip it out
 
     # get text
@@ -19,7 +19,7 @@ def crawl_link(url):
     # break multi-headlines into a line each
     chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
     # drop blank lines
-    text = '\n'.join(chunk for chunk in chunks if chunk) 
+    text = '\n'.join(chunk for chunk in chunks if chunk)
     
     return text
 
