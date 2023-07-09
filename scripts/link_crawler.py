@@ -5,7 +5,6 @@ import sys
 def crawl_link(url):
     html = urlopen(url).read()
     soup = BeautifulSoup(html, features="html.parser")
-    line_maxlen = 0
 
     # kill all script and style elements
     for script in soup(["script", "style", "a"]):
@@ -19,7 +18,13 @@ def crawl_link(url):
     # break multi-headlines into a line each
     chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
     # drop blank lines
-    text = '\n'.join(chunk for chunk in chunks if chunk)
+    text = '\n'.join(chunk for chunk in chunks if len(chunk) > 100)
+    
+    for line in chunks:
+        if len(line) > 100:
+            f = open("./text.txt", "w")
+            f.write(line)
+            f.close()
     
     return text
 
