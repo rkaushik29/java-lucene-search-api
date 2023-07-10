@@ -5,6 +5,7 @@ import sys
 def crawl_link(url):
     html = urlopen(url).read()
     soup = BeautifulSoup(html, features="html.parser")
+    f = open("./text.txt", "w")
 
     # kill all script and style elements
     for script in soup(["script", "style", "a"]):
@@ -22,9 +23,9 @@ def crawl_link(url):
     
     for line in chunks:
         if len(line) > 100:
-            f = open("./text.txt", "w")
             f.write(line)
-            f.close()
+    
+    f.close()
     
     return text
 

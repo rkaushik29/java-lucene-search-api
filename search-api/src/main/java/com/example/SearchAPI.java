@@ -17,6 +17,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.queryparser.classic.QueryParser;
@@ -135,19 +136,43 @@ public class SearchAPI {
 
             // Link Crawling
             try {
-                Process process = Runtime.getRuntime().exec("/Users/rohitkaushik/dev/tugraz/java-lucene-search-api/scripts/crawl.sh " + charSequenceValue);
-                BufferedReader io_reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-
-                String line = "";
+                ProcessBuilder processBuilder = new ProcessBuilder("bash", "/Users/rohitkaushik/dev/tugraz/java-lucene-search-api/scripts/crawl.sh", charSequenceValue);
+                Process process = processBuilder.start();
+                
+                // Read the output stream
+                InputStream inputStream = process.getInputStream();
+                BufferedReader io_reader = new BufferedReader(new InputStreamReader(inputStream));
+                StringBuilder output = new StringBuilder();
+                String line;
                 while ((line = io_reader.readLine()) != null) {
-                    System.out.println(line + " 1");
+                    output.append(line).append("\n");
                 }
-                process.waitFor();
+
+                // Read the error stream
+                InputStream errorStream = process.getErrorStream();
+                BufferedReader errorReader = new BufferedReader(new InputStreamReader(errorStream));
+                StringBuilder errorOutput = new StringBuilder();
+                while ((line = errorReader.readLine()) != null) {
+                    errorOutput.append(line).append("\n");
+                }
+
+                // Wait for the process to complete
+                int exitCode = process.waitFor();
+                
+                // Print the output or store it in a variable
+                String io_result = output.toString();
+                String errorResult = errorOutput.toString();
+                System.out.println(io_result);
+                System.err.println(errorResult);
+                // You can store the result in a variable for further use if needed
+
                 reader.close();
+                process.destroy();
             } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
-            }                         
-        }
+            }
+        }                      
+        
 
         // Close the IndexReader
         reader.close();
