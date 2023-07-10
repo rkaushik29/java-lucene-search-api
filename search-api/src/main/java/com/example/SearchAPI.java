@@ -94,7 +94,7 @@ public class SearchAPI {
 
         // Prepare the response
         SearchResult result = new SearchResult(documents);
-        context.json(result);
+        
 
         // Convert into JSON object -> for parquet integration
         String res = context.result();
@@ -111,7 +111,7 @@ public class SearchAPI {
             // Get the link for path extraction, which is needed to get text from parquet file
             String charSequenceValue = fieldObject.get("charSequenceValue").getAsString();
 
-            String path = extractPath(charSequenceValue);
+            // String path = extractPath(charSequenceValue);
 
             // --- Parquet file query attempt ---------------------------------------
             // try (ParquetReader<Group> prq_reader = createParquetReader(PRQ_PATH)) {
@@ -136,7 +136,7 @@ public class SearchAPI {
 
             // Link Crawling
             try {
-                ProcessBuilder processBuilder = new ProcessBuilder("bash", "/Users/rohitkaushik/dev/tugraz/java-lucene-search-api/scripts/crawl.sh", charSequenceValue);
+                ProcessBuilder processBuilder = new ProcessBuilder("python", "/Users/rohitkaushik/dev/tugraz/java-lucene-search-api/scripts/link_crawler.py", charSequenceValue);
                 Process process = processBuilder.start();
                 
                 // Read the output stream
@@ -148,30 +148,24 @@ public class SearchAPI {
                     output.append(line).append("\n");
                 }
 
-                // Read the error stream
-                InputStream errorStream = process.getErrorStream();
-                BufferedReader errorReader = new BufferedReader(new InputStreamReader(errorStream));
-                StringBuilder errorOutput = new StringBuilder();
-                while ((line = errorReader.readLine()) != null) {
-                    errorOutput.append(line).append("\n");
-                }
-
                 // Wait for the process to complete
                 int exitCode = process.waitFor();
                 
                 // Print the output or store it in a variable
                 String io_result = output.toString();
-                String errorResult = errorOutput.toString();
-                System.out.println(io_result);
-                System.err.println(errorResult);
-                // You can store the result in a variable for further use if needed
+                
+                // Add text to fieldObject
+                fieldObject.addProperty("text", io_result);
 
-                reader.close();
+                io_reader.close();
                 process.destroy();
             } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
             }
-        }                      
+        }
+
+        System.out.println(resultsArray);
+        context.json(resultsArray);
         
 
         // Close the IndexReader
