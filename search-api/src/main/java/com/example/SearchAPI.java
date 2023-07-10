@@ -94,7 +94,7 @@ public class SearchAPI {
 
         // Prepare the response
         SearchResult result = new SearchResult(documents);
-        
+        context.json(result);
 
         // Convert into JSON object -> for parquet integration
         String res = context.result();
@@ -163,9 +163,8 @@ public class SearchAPI {
                 e.printStackTrace();
             }
         }
-
-        System.out.println(resultsArray);
         context.json(resultsArray);
+        String final_res = context.result();
         
 
         // Close the IndexReader
