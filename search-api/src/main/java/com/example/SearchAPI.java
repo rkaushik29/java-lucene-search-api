@@ -36,10 +36,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SearchAPI {
-    private static final String INDEX_PATH = "/Users/rohitkaushik/dev/tugraz/java-lucene-search-api/search-api/src/main/resources/graz";
     private static final String CSV_PATH = "/Users/rohitkaushik/dev/tugraz/java-lucene-search-api/scripts/search_pq.csv";
 
     public static void main(String[] args) throws Exception {
+        String INDEX_PATH = "/Users/rohitkaushik/dev/tugraz/java-lucene-search-api/search-api/src/main/resources/" + args[0];
         Javalin app = Javalin.create(config -> {
             config.plugins.enableCors(cors -> {
                 cors.add(it -> {
@@ -136,37 +136,6 @@ public class SearchAPI {
                 e.printStackTrace();
             }
         }
-        
-        // Link Crawling
-        //     try {
-        //         ProcessBuilder processBuilder = new ProcessBuilder("python", "/Users/rohitkaushik/dev/tugraz/java-lucene-search-api/scripts/link_crawler.py", charSequenceValue);
-        //         Process process = processBuilder.start();
-                
-        //         // Read the output stream
-        //         InputStream inputStream = process.getInputStream();
-        //         BufferedReader io_reader = new BufferedReader(new InputStreamReader(inputStream));
-        //         StringBuilder output = new StringBuilder();
-        //         String line;
-        //         while ((line = io_reader.readLine()) != null) {
-        //             output.append(line).append("\n");
-        //         }
-
-        //         // Wait for the process to complete
-        //         int exitCode = process.waitFor();
-                
-        //         // Print the output or store it in a variable
-        //         String io_result = output.toString();
-                
-                
-        //         // Add link text to fieldObject
-        //         fieldObject.addProperty("text", io_result);
-
-        //         io_reader.close();
-        //         process.destroy();
-        //     } catch (IOException | InterruptedException e) {
-        //         e.printStackTrace();
-        //     }
-        // }
 
         // Add array with cralwed text to Json object
         jsonObject.add("results", resultsArray);
