@@ -33,10 +33,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SearchAPI {
-    private static final String CSV_PATH = "/Users/rohitkaushik/dev/tugraz/java-lucene-search-api/scripts/search_pq.csv";
+    private static final String CSV_PATH = "scripts/search_pq.csv";
 
     public static void main(String[] args) throws Exception {
-        String INDEX_PATH = "/Users/rohitkaushik/dev/tugraz/java-lucene-search-api/search-api/src/main/resources/" + args[0];
+        String INDEX_PATH = "search-api/src/main/resources" + args[0];
         Javalin app = Javalin.create(config -> {
             config.plugins.enableCors(cors -> {
                 cors.add(it -> {
@@ -53,6 +53,7 @@ public class SearchAPI {
         });
     }
 
+    // Function to create a query object from the query string
     // Contains field in the index you are searching while making a Query
     private static Query createQuery(String queryString) throws ParseException {
         QueryParser queryParser = new QueryParser("contents", new StandardAnalyzer());
@@ -61,7 +62,7 @@ public class SearchAPI {
         return query;
     }
 
-    // Created index searcher from the path
+    // Function to create index searcher from the file path of the index
     private static IndexSearcher createSearcher(String INDEX_PATH) throws IOException 
     {
         FSDirectory dir = FSDirectory.open(Paths.get(INDEX_PATH));
@@ -69,6 +70,7 @@ public class SearchAPI {
         return new IndexSearcher(reader);
     }
 
+    // Function to handle a search request sent to this API
     private static void handleSearchRequest(Context context, String INDEX_PATH) throws Exception {
         Query query = createQuery(context.queryParam("q"));
 
@@ -105,10 +107,13 @@ public class SearchAPI {
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
         String resp = ow.writeValueAsString(result);
         JsonObject jsonObject = new Gson().fromJson(resp, JsonObject.class);
+        JsonArray resultsArray = jsonObject.getAsJsonArray("results");
+
+        // --------------------------------- PARQUET METADATA INCLUSION ---------------------------------------------
+        //         Comment this section out if Parquet metadata is not needed, or the file schema is unknown
 
         // Iterate through JSON obj, get links and extract path, use path to get text from parquet file and put it
         // into the result
-        JsonArray resultsArray = jsonObject.getAsJsonArray("results");
         for (JsonElement element : resultsArray) {
             JsonObject resultObject = element.getAsJsonObject();
             JsonArray fieldsArray = resultObject.getAsJsonArray("fields");
@@ -137,6 +142,8 @@ public class SearchAPI {
             }
         }
 
+        // --------------------------------------------------------------------------------------------------------
+
         // Add array with cralwed text to Json object
         jsonObject.add("results", resultsArray);
         System.out.println(jsonObject);
@@ -149,6 +156,7 @@ public class SearchAPI {
         reader.close();
     }
 
+    // Class definition for SearchResult object, where query results are initally stored.
     static class SearchResult {
         private List<Document> results;
 
@@ -161,6 +169,8 @@ public class SearchAPI {
         }
     }
 
+    // Function to extract the path from the input, which must be a URL.
+    // Eg: URL: https://www.wikipedia.org/Graz ; Res: /Graz
     public static String extractPath(String input) {
         int count = 0;
         int index = -1;
@@ -182,11 +192,13 @@ public class SearchAPI {
         }
     }
 
+    // Function to convert a JSON string to a JSON object
     public static JsonObject convertToJSON(String jsonString) {
         Gson gson = new Gson();
         return gson.fromJson(jsonString, JsonObject.class);
     }
 
+    // Function to return the longest sequence of characters in a string without a linebreak.
     public static String longestSequence(String input) {
         String[] sequences = input.split("\n");
         String longestSequence = "";
