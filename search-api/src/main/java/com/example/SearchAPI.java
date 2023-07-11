@@ -51,7 +51,7 @@ public class SearchAPI {
         app.start(8000);
         System.out.print("Running app\n");
 
-        app.get("/search", SearchAPI::handleSearchRequest);
+        app.get("/search", ctx -> handleSearchRequest(ctx, INDEX_PATH));
         app.exception(Exception.class, (e, ctx) -> {
         });
     }
@@ -63,14 +63,14 @@ public class SearchAPI {
         return query;
     }
 
-    private static IndexSearcher createSearcher() throws IOException 
+    private static IndexSearcher createSearcher(String INDEX_PATH) throws IOException 
     {
         FSDirectory dir = FSDirectory.open(Paths.get(INDEX_PATH));
         IndexReader reader = DirectoryReader.open(dir);
         return new IndexSearcher(reader);
     }
 
-    private static void handleSearchRequest(Context context) throws Exception {
+    private static void handleSearchRequest(Context context, String INDEX_PATH) throws Exception {
         Query query = createQuery(context.queryParam("q"));
 
         // Create an IndexSearcher
@@ -81,7 +81,7 @@ public class SearchAPI {
         System.out.println("Index Exists: " + indexExists);
 
         IndexReader reader = DirectoryReader.open(indexDir);
-        IndexSearcher searcher = createSearcher();
+        IndexSearcher searcher = createSearcher(INDEX_PATH);
         searcher.setSimilarity(new BM25Similarity());
 
         // Perform the search
