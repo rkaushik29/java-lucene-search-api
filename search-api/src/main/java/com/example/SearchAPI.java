@@ -12,35 +12,32 @@ import org.apache.lucene.search.similarities.BM25Similarity;
 import org.apache.lucene.store.FSDirectory;
 import com.fasterxml.jackson.databind.ObjectMapper; 
 import com.fasterxml.jackson.databind.ObjectWriter; 
-// import org.apache.parquet.hadoop.ParquetReader;
-// import org.apache.parquet.hadoop.example.GroupReadSupport;
-// import org.apache.parquet.hadoop.ParquetFileReader;
-// import org.apache.parquet.hadoop.metadata.ParquetMetadata;
-// import org.apache.parquet.schema.MessageType;
-// import org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName;
 import org.apache.lucene.search.Query;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import java.io.BufferedReader;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
+import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-// import java.lang.module.Configuration;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
 import java.util.HashSet;
 import java.util.Set;
-// import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
 public class SearchAPI {
     private static final String INDEX_PATH = "/Users/rohitkaushik/dev/tugraz/java-lucene-search-api/search-api/src/main/resources/graz";
-    private static final String PRQ_PATH = "/Users/rohitkaushik/dev/tugraz/java-lucene-search-api/search-api/src/main/resources/websites-graz.parquet";
+    private static final String CSV_PATH = "/Users/rohitkaushik/dev/tugraz/java-lucene-search-api/scripts/search_pq.csv";
 
     public static void main(String[] args) throws Exception {
         Javalin app = Javalin.create(config -> {
@@ -120,51 +117,56 @@ public class SearchAPI {
             // Get the links, to be queried on parquet or crawled
             String charSequenceValue = fieldObject.get("charSequenceValue").getAsString();
 
-            // String path = extractPath(charSequenceValue);
+            String url_path = extractPath(charSequenceValue);
+            String link_text = "";
 
-            // try (ParquetReader<GenericRecord> pq_reader = AvroParquetReader.<GenericRecord>builder(PRQ_PATH).build()) {
-            //     GenericRecord record;
-            //     while ((record = pq_reader.read()) != null) {
-            //         // Perform your search operations or process the record as needed
-            //         System.out.println(record);
-            //     }
-            // } catch (IOException e) {
-            //     e.printStackTrace();
-            // }
+            try (Reader csv_reader = new FileReader(CSV_PATH);
+                CSVParser csvParser = new CSVParser(csv_reader, CSVFormat.DEFAULT)) {
 
-            // // Add the "text" field next to the "charSequenceValue" field
-            // fieldObject.addProperty("text", "Some text");
-
-            // Link Crawling
-            try {
-                ProcessBuilder processBuilder = new ProcessBuilder("python", "/Users/rohitkaushik/dev/tugraz/java-lucene-search-api/scripts/link_crawler.py", charSequenceValue);
-                Process process = processBuilder.start();
-                
-                // Read the output stream
-                InputStream inputStream = process.getInputStream();
-                BufferedReader io_reader = new BufferedReader(new InputStreamReader(inputStream));
-                StringBuilder output = new StringBuilder();
-                String line;
-                while ((line = io_reader.readLine()) != null) {
-                    output.append(line).append("\n");
+                // Iterate over CSV records and perform queries
+                for (CSVRecord record : csvParser) {
+                    String csv_path = record.get(6); // Access url_path column
+                    
+                    if (csv_path.equals(url_path)) {
+                        link_text = record.get(2);
+                        fieldObject.addProperty("text", longestSequence(link_text).trim());
+                    }
                 }
-
-                // Wait for the process to complete
-                int exitCode = process.waitFor();
-                
-                // Print the output or store it in a variable
-                String io_result = output.toString();
-                
-                
-                // Add link text to fieldObject
-                fieldObject.addProperty("text", io_result);
-
-                io_reader.close();
-                process.destroy();
-            } catch (IOException | InterruptedException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
+        
+        // Link Crawling
+        //     try {
+        //         ProcessBuilder processBuilder = new ProcessBuilder("python", "/Users/rohitkaushik/dev/tugraz/java-lucene-search-api/scripts/link_crawler.py", charSequenceValue);
+        //         Process process = processBuilder.start();
+                
+        //         // Read the output stream
+        //         InputStream inputStream = process.getInputStream();
+        //         BufferedReader io_reader = new BufferedReader(new InputStreamReader(inputStream));
+        //         StringBuilder output = new StringBuilder();
+        //         String line;
+        //         while ((line = io_reader.readLine()) != null) {
+        //             output.append(line).append("\n");
+        //         }
+
+        //         // Wait for the process to complete
+        //         int exitCode = process.waitFor();
+                
+        //         // Print the output or store it in a variable
+        //         String io_result = output.toString();
+                
+                
+        //         // Add link text to fieldObject
+        //         fieldObject.addProperty("text", io_result);
+
+        //         io_reader.close();
+        //         process.destroy();
+        //     } catch (IOException | InterruptedException e) {
+        //         e.printStackTrace();
+        //     }
+        // }
 
         // Add array with cralwed text to Json object
         jsonObject.add("results", resultsArray);
@@ -214,5 +216,18 @@ public class SearchAPI {
     public static JsonObject convertToJSON(String jsonString) {
         Gson gson = new Gson();
         return gson.fromJson(jsonString, JsonObject.class);
+    }
+
+    public static String longestSequence(String input) {
+        String[] sequences = input.split("\n");
+        String longestSequence = "";
+
+        for (String sequence : sequences) {
+            if (sequence.length() > longestSequence.length()) {
+                longestSequence = sequence;
+            }
+        }
+
+        return longestSequence;
     }
 }
