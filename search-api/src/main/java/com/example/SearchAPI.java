@@ -10,6 +10,14 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.similarities.BM25Similarity;
 import org.apache.lucene.store.FSDirectory;
+import com.fasterxml.jackson.databind.ObjectMapper; 
+import com.fasterxml.jackson.databind.ObjectWriter; 
+// import org.apache.parquet.hadoop.ParquetReader;
+// import org.apache.parquet.hadoop.example.GroupReadSupport;
+// import org.apache.parquet.hadoop.ParquetFileReader;
+// import org.apache.parquet.hadoop.metadata.ParquetMetadata;
+// import org.apache.parquet.schema.MessageType;
+// import org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName;
 import org.apache.lucene.search.Query;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -19,18 +27,20 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+// import java.lang.module.Configuration;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
 import java.util.HashSet;
 import java.util.Set;
+// import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
 public class SearchAPI {
     private static final String INDEX_PATH = "/Users/rohitkaushik/dev/tugraz/java-lucene-search-api/search-api/src/main/resources/graz";
-    private static final String PRQ_PATH = "/Users/rohitkaushik/dev/tugraz/java-lucene-search-api/search-api/src/main/resources/websites-graz.parquet.gz";
+    private static final String PRQ_PATH = "/Users/rohitkaushik/dev/tugraz/java-lucene-search-api/search-api/src/main/resources/websites-graz.parquet";
 
     public static void main(String[] args) throws Exception {
         Javalin app = Javalin.create(config -> {
@@ -94,11 +104,10 @@ public class SearchAPI {
 
         // Prepare the response
         SearchResult result = new SearchResult(documents);
-        context.json(result);
 
-        // Convert into JSON object -> for parquet integration
-        String res = context.result();
-        JsonObject jsonObject = new Gson().fromJson(res, JsonObject.class);
+        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        String resp = ow.writeValueAsString(result);
+        JsonObject jsonObject = new Gson().fromJson(resp, JsonObject.class);
 
         // Iterate through JSON obj, get links and extract path, use path to get text from parquet file and put it
         // into the result
@@ -113,26 +122,18 @@ public class SearchAPI {
 
             // String path = extractPath(charSequenceValue);
 
-            // --- Parquet file query attempt ---------------------------------------
-            // try (ParquetReader<Group> prq_reader = createParquetReader(PRQ_PATH)) {
-            //     Group record;
-            //     while ((record = prq_reader.read()) != null) {
-            //         String urlPath = record.getString("url_path", 0);
-            //         if (urlPath.equals(path)) {
-            //             String text = record.getString("text", 0);
-            //             System.out.println("Matching entry found!");
-            //             System.out.println("url_path: " + urlPath);
-            //             System.out.println("text: " + text);
-            //             break;
-            //         }
+            // try (ParquetReader<GenericRecord> pq_reader = AvroParquetReader.<GenericRecord>builder(PRQ_PATH).build()) {
+            //     GenericRecord record;
+            //     while ((record = pq_reader.read()) != null) {
+            //         // Perform your search operations or process the record as needed
+            //         System.out.println(record);
             //     }
             // } catch (IOException e) {
             //     e.printStackTrace();
             // }
 
-            // Add the "text" field next to the "charSequenceValue" field
+            // // Add the "text" field next to the "charSequenceValue" field
             // fieldObject.addProperty("text", "Some text");
-            // ------------------------------------------------------------------------
 
             // Link Crawling
             try {
@@ -154,6 +155,7 @@ public class SearchAPI {
                 // Print the output or store it in a variable
                 String io_result = output.toString();
                 
+                
                 // Add text to fieldObject
                 fieldObject.addProperty("text", io_result);
 
@@ -163,9 +165,13 @@ public class SearchAPI {
                 e.printStackTrace();
             }
         }
-        context.json(resultsArray);
-        String final_res = context.result();
-        
+
+        jsonObject.add("results", resultsArray);
+
+        System.out.println(jsonObject);
+
+        context.json(jsonObject);
+        // String res = context.result();
 
         // Close the IndexReader
         reader.close();
@@ -182,17 +188,6 @@ public class SearchAPI {
             return results;
         }
     }
-
-    // private static ParquetReader<Group> createParquetReader(String filePath) throws IOException {
-    //     MessageType schema = Types.buildMessage()
-    //             .optional(Types.optional(PrimitiveTypeName.BINARY)).named("url_path")
-    //             .optional(Types.optional(PrimitiveTypeName.BINARY)).named("text")
-    //             .named("parquet_data");
-
-    //     Builder<Group> reader = ParquetReader.builder(new GroupReadSupport(), new org.apache.hadoop.fs.Path(filePath));
-    //     return reader.build();
-    // }
-
 
     public static String extractPath(String input) {
             int count = 0;
