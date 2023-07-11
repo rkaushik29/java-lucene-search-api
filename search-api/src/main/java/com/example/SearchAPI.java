@@ -23,9 +23,6 @@ import org.apache.commons.csv.CSVRecord;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
@@ -56,6 +53,7 @@ public class SearchAPI {
         });
     }
 
+    // Contains field in the index you are searching while making a Query
     private static Query createQuery(String queryString) throws ParseException {
         QueryParser queryParser = new QueryParser("contents", new StandardAnalyzer());
         Query query = queryParser.parse(queryString);
@@ -63,6 +61,7 @@ public class SearchAPI {
         return query;
     }
 
+    // Created index searcher from the path
     private static IndexSearcher createSearcher(String INDEX_PATH) throws IOException 
     {
         FSDirectory dir = FSDirectory.open(Paths.get(INDEX_PATH));
@@ -99,9 +98,10 @@ public class SearchAPI {
             documents.add(document);
         }
 
-        // Prepare the response
+        // Prepare the result object
         SearchResult result = new SearchResult(documents);
 
+        // Convert result to JSON object
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
         String resp = ow.writeValueAsString(result);
         JsonObject jsonObject = new Gson().fromJson(resp, JsonObject.class);
@@ -114,7 +114,7 @@ public class SearchAPI {
             JsonArray fieldsArray = resultObject.getAsJsonArray("fields");
             JsonObject fieldObject = fieldsArray.get(0).getAsJsonObject();
 
-            // Get the links, to be queried on parquet or crawled
+            // Get the links, to be queried on csv from parquet
             String charSequenceValue = fieldObject.get("charSequenceValue").getAsString();
 
             String url_path = extractPath(charSequenceValue);
@@ -162,24 +162,24 @@ public class SearchAPI {
     }
 
     public static String extractPath(String input) {
-            int count = 0;
-            int index = -1;
-            
-            for (int i = 0; i < input.length(); i++) {
-                if (input.charAt(i) == '/') {
-                    count++;
-                    if (count == 3) {
-                        index = i;
-                        break;
-                    }
+        int count = 0;
+        int index = -1;
+        
+        for (int i = 0; i < input.length(); i++) {
+            if (input.charAt(i) == '/') {
+                count++;
+                if (count == 3) {
+                    index = i;
+                    break;
                 }
             }
-            
-            if (index != -1 && index + 1 < input.length()) {
-                return input.substring(index);
-            } else {
-                return ""; 
-            }
+        }
+        
+        if (index != -1 && index + 1 < input.length()) {
+            return input.substring(index);
+        } else {
+            return ""; 
+        }
     }
 
     public static JsonObject convertToJSON(String jsonString) {
