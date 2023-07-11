@@ -117,7 +117,7 @@ public class SearchAPI {
             JsonArray fieldsArray = resultObject.getAsJsonArray("fields");
             JsonObject fieldObject = fieldsArray.get(0).getAsJsonObject();
 
-            // Get the link for path extraction, which is needed to get text from parquet file
+            // Get the links, to be queried on parquet or crawled
             String charSequenceValue = fieldObject.get("charSequenceValue").getAsString();
 
             // String path = extractPath(charSequenceValue);
@@ -156,7 +156,7 @@ public class SearchAPI {
                 String io_result = output.toString();
                 
                 
-                // Add text to fieldObject
+                // Add link text to fieldObject
                 fieldObject.addProperty("text", io_result);
 
                 io_reader.close();
@@ -166,12 +166,13 @@ public class SearchAPI {
             }
         }
 
+        // Add array with cralwed text to Json object
         jsonObject.add("results", resultsArray);
-
         System.out.println(jsonObject);
 
-        context.json(jsonObject);
-        // String res = context.result();
+        // Return Data
+        context.contentType("application/json");
+        context.result(jsonObject.toString());
 
         // Close the IndexReader
         reader.close();
