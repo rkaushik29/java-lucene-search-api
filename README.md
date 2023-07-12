@@ -7,7 +7,7 @@ The OpenWebSearch API is an interface created for easy searching of Lucene indic
 - Install Python (3.8+)
 - Install Maven
 - Install Lucene (from the Lucene official website)
-- Install the required Python3.10+ dependencies: `pip install bs4`.
+- Install the required Python3.10+ dependencies: `pip install parquet-tools`.
 - Add the following jar files to the Classpath: `lucene-core-{version}.jar` and `lucene-demos-{version}.jar` by using the following command `export CLASSPATH=/full/path/to/{lucene1}.jar:/full/path/to/{lucene2}.jar:$CLASSPATH`.
 - Include the Lucene index in `search-api/src/main/resources`.
 - Include the Parquet file with the same name as the index in `search-api/src/main/resources`. The fileame should be : `<your-index-name>.parquet.gz`. If it differs, modify `run_api.sh`.
@@ -15,7 +15,7 @@ The OpenWebSearch API is an interface created for easy searching of Lucene indic
 ### Running the API
 - Enter the scripts directory `cd scripts`.
 - Run the API using the following command : `./start_api.sh <YOUR_INDEX_NAME> <YOUR_API_PORT> <YOUR_CORS_ENDPOINT>`, where the index name corresponds to the name of your lucene index directory and parquet file in the resources folder of the API.
-- The `API_PORT` and `CORS_ENDPOINT` parameters are optional, and are set to `8000` and `https://localhost:3000` respectively, for the purposes of this application.
+- The `API_PORT` and `CORS_ENDPOINT` parameters are optional, and are set to `8000` and `https://localhost:3000` respectively by default, for the purposes of this application.
 - Example script call: `./start_api.sh websites-graz 8000 https://localhost:3000`
 
 The server will be running on `port:8000` of your machine.
@@ -34,4 +34,3 @@ The server will be running on `port:8000` of your machine.
 - In case the parquet metadata is not needed, simply comment out the code after `PARQUET METADATA INCLUSION` and the API will work for any Lucene index.
 - If the Parquet metadata needs to be stored in the response, then modify the `PARQUET METADATA INCLUSION` section to match the schema of your Parquet file for queries.
 - The Parquet file is converted to a CSV internally before the API launches, and CSV querying libraries are used within the above section.
-- CORS has been enabled for `port:3000` only - this must be kept in mind while developing further applications with this API. More CORS can be added if required.
