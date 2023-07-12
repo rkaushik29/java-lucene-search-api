@@ -27,6 +27,7 @@ The server will be running on `port:8000` of your machine.
 
 ### Notes about the API
 - This API was designed to be a backend for the OWS SearchApp. To make it more generic, the manner in which index results are interpreted need to be analyzed. For example, the search results here give URLs which the App directly uses. Other indices searched using this may return an ID which will need further querying in parquet files or databases.
+- This API uses a Lucene `StandardAnalyzer` to read the index. If the index is not being read, it could be due to a different analyzer being used while generating the index.
 - The Java API retrieved metadata from the Parquet files by querying the file. Therefore, if the schema of the Parquet file is different from that of the websites-graz.parquet.gz file, then the API will need to be modified.
 - In case the parquet metadata is not needed, simply comment out the code after `PARQUET METADATA INCLUSION` and the API will work for any Lucene index.
 - If the Parquet metadata needs to be stored in the response, then modify the `PARQUET METADATA INCLUSION` section to match the schema of your Parquet file for queries.

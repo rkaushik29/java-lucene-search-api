@@ -35,7 +35,7 @@ import java.util.List;
 public class SearchAPI {
     private static final String CSV_PATH = "scripts/search_pq.csv";
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         String INDEX_PATH = "search-api/src/main/resources" + args[0];
         Javalin app = Javalin.create(config -> {
             config.plugins.enableCors(cors -> {
@@ -57,9 +57,7 @@ public class SearchAPI {
     // Contains field in the index you are searching while making a Query
     private static Query createQuery(String queryString) throws ParseException {
         QueryParser queryParser = new QueryParser("contents", new StandardAnalyzer());
-        Query query = queryParser.parse(queryString);
-
-        return query;
+        return queryParser.parse(queryString);
     }
 
     // Function to create index searcher from the file path of the index
@@ -122,19 +120,19 @@ public class SearchAPI {
             // Get the links, to be queried on csv from parquet
             String charSequenceValue = fieldObject.get("charSequenceValue").getAsString();
 
-            String url_path = extractPath(charSequenceValue);
-            String link_text = "";
+            String urlPath = extractPath(charSequenceValue);
+            String linkText = "";
 
-            try (Reader csv_reader = new FileReader(CSV_PATH);
-                CSVParser csvParser = new CSVParser(csv_reader, CSVFormat.DEFAULT)) {
+            try (Reader csvReader = new FileReader(CSV_PATH);
+                CSVParser csvParser = new CSVParser(csvReader, CSVFormat.DEFAULT)) {
 
                 // Iterate over CSV records and perform queries
-                for (CSVRecord record : csvParser) {
-                    String csv_path = record.get(6); // Access url_path column
+                for (CSVRecord csvRecord : csvParser) {
+                    String csvPath = csvRecord.get(6); // Access urlPath column
                     
-                    if (csv_path.equals(url_path)) {
-                        link_text = record.get(2);
-                        fieldObject.addProperty("text", longestSequence(link_text).trim());
+                    if (csvPath.equals(urlPath)) {
+                        linkText = csvRecord.get(2);
+                        fieldObject.addProperty("text", longestSequence(linkText).trim());
                     }
                 }
             } catch (IOException e) {
