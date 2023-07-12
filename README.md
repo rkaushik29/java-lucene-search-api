@@ -14,7 +14,9 @@ The OpenWebSearch API is an interface created for easy searching of Lucene indic
 
 ### Running the API
 - Enter the scripts directory `cd scripts`.
-- Run the API using the following command : `./run_api.sh <YOUR_INDEX_NAME>`, where the index name corresponds to the name of your lucene index directory and parquet file in the resources folder of the API.
+- Run the API using the following command : `./start_api.sh <YOUR_INDEX_NAME> <YOUR_API_PORT> <YOUR_CORS_ENDPOINT>`, where the index name corresponds to the name of your lucene index directory and parquet file in the resources folder of the API.
+- The `API_PORT` and `CORS_ENDPOINT` parameters are optional, and are set to `8000` and `https://localhost:3000` respectively, for the purposes of this application.
+- Example script call: `./start_api.sh websites-graz 8000 https://localhost:3000`
 
 The server will be running on `port:8000` of your machine.
 

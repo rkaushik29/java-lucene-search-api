@@ -20,6 +20,8 @@ import com.google.gson.JsonObject;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -33,22 +35,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SearchAPI {
-    private static final String CSV_PATH = "scripts/search_pq.csv";
+    private static final String CSV_PATH = "../scripts/search_pq.csv";
 
     public static void main(String[] args) {
-        String INDEX_PATH = "search-api/src/main/resources" + args[0];
+        String indexPath = "../resources/" + args[0];
         Javalin app = Javalin.create(config -> {
             config.plugins.enableCors(cors -> {
                 cors.add(it -> {
-                    it.allowHost("http://localhost:3000", "javalin.io");
+                    it.allowHost(args[2], "javalin.io");
                 });
             });
         });
 
-        app.start(8000);
-        System.out.print("Running app\n");
+        app.start(Integer.parseInt(args[1]));
+        System.out.print("Running app on port:" + args[1] + "\n");
 
-        app.get("/search", ctx -> handleSearchRequest(ctx, INDEX_PATH));
+        app.get("/search", ctx -> handleSearchRequest(ctx, indexPath));
         app.exception(Exception.class, (e, ctx) -> {
         });
     }
