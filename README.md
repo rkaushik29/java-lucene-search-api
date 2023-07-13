@@ -20,7 +20,7 @@ python3 -m pip install --upgrade pip
 ### Running the API
 - Enter the scripts directory `cd scripts`.
 - Run the API using the following command : `./start_api.sh <YOUR_INDEX_NAME> <YOUR_API_PORT> <YOUR_CORS_ENDPOINT>`, where the index name corresponds to the name of your lucene index directory and parquet file in the resources folder of the API.
-- The `API_PORT` and `CORS_ENDPOINT` parameters are optional, and are set to `8000` and `https://localhost:3000` respectively by default, for the purposes of this application.
+- The `API_PORT` and `CORS_ENDPOINT` parameters are optional, and are set to `8000` and `http://localhost:3000/` respectively by default, for the purposes of this application.
 - Example script call: `./start_api.sh websites-graz 8000 https://localhost:3000`
 
 The server will be running on `port:8000` of your machine.
@@ -28,7 +28,7 @@ The server will be running on `port:8000` of your machine.
 ### Queries
 
 - Open a web browser or use tools like cURL or Postman.
-- Send a GET request to http://localhost:8000/search?q=<your-query>, where <your-query> is the search query you want to perform.
+- Send a GET request to `http://localhost:8000/search?q=<your-query>`, where `<your-query>` is the query term of the search you want to perform.
 - The API will return a response containing the query and a list of search results, containing the URL along with the text metadata.
 
 
@@ -40,3 +40,8 @@ The server will be running on `port:8000` of your machine.
 - In case the parquet metadata is not needed, simply comment out the code after `PARQUET METADATA INCLUSION` and the API will work for any Lucene index.
 - If the Parquet metadata needs to be stored in the response, then modify the `PARQUET METADATA INCLUSION` section to match the schema of your Parquet file for queries.
 - The Parquet file is converted to a CSV internally before the API launches, and CSV querying libraries are used within the above section.
+
+### Improvements to the API
+- It could be worthwhile including the [ciff-lucene converter](https://github.com/informagi/lucene-ciff) in this application, and allowing users to retrieve a Lucene index from a CIFF index directly using this app, through a separate bash script. 
+- It is also useful to perhaps change the API to search over more than one index, if multiple indexes are provided to the API. This can be done by looping over all index names that the user has provided, creating index readers for each, searching and storing the result in a data structure in each iteration. Finally, return the top results from the whole search. 
+- The API needs to be hosted on a server eventually, and allow users to upload CIFF and Parquet files to it before performing search via the API. 
