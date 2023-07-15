@@ -144,7 +144,6 @@ public class SearchAPI {
 
         // Add array with cralwed text to Json object
         jsonObject.add("results", resultsArray);
-        System.out.println(jsonObject);
 
         // Return Data
         context.contentType("application/json");
