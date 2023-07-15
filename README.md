@@ -2,7 +2,7 @@
 
 The OpenWebSearch API is an application created to access the Open Web Index and send queries to it through a REST API. It returns search results from the Parquet files that contain metadata associated with the URLs that are indexed. 
 
-Another component of this package is the Index Converter which converts a CIFF index to an Apache Lucene index, using Anserini tools. Find out more about the working of the standalone application [here](https://github.com/informagi/lucene-ciff). This component allows users to insert a CIFF index in the `resources/` folder and convert it into a Lucene index.
+Another component of this package is the Index Converter [Created by @gijshendriksen] which converts a CIFF index to an Apache Lucene index, using Anserini tools. Find out more about the working of the standalone application [here](https://github.com/informagi/lucene-ciff). This component allows users to insert a CIFF index in the `resources/` folder and convert it into a Lucene index.
 
 ### Pre-requisites
 - Install Java (JDK 11+)
@@ -55,6 +55,3 @@ The server will be running on `port:8000` of your machine.
 ### Improvements to the API
 - It is also useful to perhaps change the API to search over more than one index, if multiple indexes are provided to the API. This can be done by looping over all index names that the user has provided, creating index readers for each, searching and storing the result in a data structure in each iteration. Finally, return the top results from the whole search. 
 - The API needs to be hosted on a server eventually, and allow users to upload CIFF and Parquet files to it before performing search via the API. 
-
-### Acknowledgement
-@gijshendriksen for creation of the index converter.
