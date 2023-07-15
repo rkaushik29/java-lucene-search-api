@@ -1,10 +1,10 @@
-# OpenWebSearch API
+# Universal OpenWebSearch API
 
 The OpenWebSearch API is an application created to access the Open Web Index and send queries to it through a REST API. It returns search results from the Parquet files that contain metadata associated with the URLs that are indexed. 
 
 Another component of this package is the Index Converter [Created by @gijshendriksen] which converts a CIFF index to an Apache Lucene index, using Anserini tools. Find out more about the working of the standalone application [here](https://github.com/informagi/lucene-ciff). This component allows users to insert a CIFF index in the `resources/` folder and convert it into a Lucene index.
 
-### Pre-requisites
+## Pre-requisites
 - Install Java (JDK 11+)
 - Install Python (3.8+)
 - Install Maven
@@ -22,19 +22,31 @@ python3 -m pip install --upgrade pip
 - Install [Anserini](https://github.com/castorini/anserini) [only for index converter]
 - Install [ciff tools](https://github.com/osirrc/ciff.git) [only for index converter]
 
+## Scripts
+
 ### Running the API
 - Enter the scripts directory `cd scripts`.
 - Run the API using the following command: `./start_api.sh <YOUR_INDEX_NAME> <YOUR_API_PORT> <YOUR_CORS_ENDPOINT>`, where the index name corresponds to the name of your lucene index directory and parquet file in the resources folder of the API.
 - The `API_PORT` and `CORS_ENDPOINT` parameters are optional, and are set to `8000` and `http://localhost:3000/` respectively by default, for the purposes of this application.
 - Example script call: `./start_api.sh websites-graz 8000 https://localhost:3000`
 
-The server will be running on `port:8000` of your machine.
+The server will be running on `port:8000` of your machine by default.
 
 ### Running the Index Converter
 - Enter the scripts directory `cd scripts`.
 - Run the converter using the following command: `./convert_index.sh <YOUR_CIFF_FILE_NAME> <CODEC_NAME>`. Ensure that you DO NOT include `.ciff` extention in `<YOUR_CIFF_FILE_NAME>`.
 - `<CODEC_NAME>` is optional, and can be included if needed. If not specified, the default Lucene codec (i.e. the latest version) will be used. Find out more about the `SimpleText` CODEC [here](https://blog.mikemccandless.com/2010/10/lucenes-simpletext-codec.html).
 - The converted index will be stores in `resources/` as a directory with the same name as above.
+- NOTE that this script will not run if a directory with name `<YOUR_CIFF_FILE_NAME>` exists already in `resources/`.
+
+### Running the App
+Use this script when you only have a CIFF and Parquet file and want to first convert the CIFF index to Lucene and then start the API all together.
+- Enter the scripts directory `cd scripts`.
+- Run the app using the following command: `./start_app.sh <YOUR_CIFF_FILE_NAME> <CODEC_NAME> <YOUR_API_PORT> <YOUR_CORS_ENDPOINT>`
+- Only the `<YOUR_CIFF_FILE_NAME>` is mandatory, the rest are optional. `<CODEC_NAME>` defaults to the standard Lucene codec. The `API_PORT` and `CORS_ENDPOINT` parameters are optional, and are set to `8000` and `http://localhost:3000/` respectively by default, for the purposes of this application.
+- NOTE that this script will not run if a directory with name `<YOUR_CIFF_FILE_NAME>` exists already in `resources/`.
+
+The server will be running on `port:8000` of your machine by default.
 
 ### Queries
 
